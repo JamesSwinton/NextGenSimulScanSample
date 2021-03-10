@@ -1,0 +1,21 @@
+<resources>
+  <string name="app_name">AnchorBarcodeSample</string>
+
+  <!-- Scanning Modes -->
+  <string name="scan_mode_prompt">Scan Mode</string>
+  <string-array name="scanning_modes">
+    <item>Single</item>
+    <item>SimulScan</item>
+  </string-array>
+
+  <!-- Available Templates -->
+  <string name="templates_prompt">Template</string>
+  <string-array name="templates">
+    <item>WholePage-OptionalBarcode</item>
+    <item>WholePage-MandatoryBarcode</item>
+    <item>USPSOneRegionNew</item>
+    <item>USPS_3849_Z4_Imager1MP</item>
+    <item>USPS_form_3849_SignatureStatus</item>
+  </string-array>
+
+</resources>
