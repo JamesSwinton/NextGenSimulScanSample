@@ -19,6 +19,10 @@ import com.zebra.jamesswinton.anchorbarcodesample.data.Field;
 import com.zebra.jamesswinton.anchorbarcodesample.utils.IntentKeys;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -156,13 +160,30 @@ public class ProcessDataWedgeOutputAsync extends AsyncTask<Void, Void, Void> {
                     Field field;
                     if (fieldLabelType.equals(IntentKeys.LABEL_TYPE_SIGNATURE)) {
                         // Convert Raw Data to Bitmap
-                        Bitmap fieldBitmap = convertBinaryDataToBitmap(fieldRawData,
-                                fieldImageWidth, fieldImageHeight);
+                        Bitmap fieldBitmap;
+                        try {
+                            fieldBitmap = convertBinaryDataToBitmap(getBinaryDataFromCursor(cursor),
+                                    fieldImageWidth, fieldImageHeight);
 
-                        // Create Field
-                        field = new Field(fieldId, fieldType, fieldLabelType, fieldStringData,
-                                fieldImageWidth, fieldImageHeight, fieldSignatureStatus, fullDataSize,
-                                dataBufferSize, fieldRawData, fieldBitmap);
+                            // Create Field
+                            field = new Field(fieldId, fieldType, fieldLabelType, fieldStringData,
+                                    fieldImageWidth, fieldImageHeight, fieldSignatureStatus, fullDataSize,
+                                    dataBufferSize, fieldRawData, fieldBitmap);
+
+                            // Save Bitmap to Downloads
+                            String file_path = "/sdcard/Download/NGSS-Captures/";
+                            File dir = new File(file_path);
+                            if(!dir.exists()) dir.mkdirs();
+                            File file = new File(dir, "NGSS-Capture-" + System.currentTimeMillis() + ".png");
+                            FileOutputStream fOut = null;
+                            fOut = new FileOutputStream(file);
+                            fieldBitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+                            fOut.flush();
+                            fOut.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return;
+                        }
                     } else {
                         // Create Field
                         field = new Field(fieldId, fieldType, fieldLabelType, fieldStringData,
@@ -195,8 +216,67 @@ public class ProcessDataWedgeOutputAsync extends AsyncTask<Void, Void, Void> {
         String labelType = mData.getString(IntentKeys.DATA_WEDGE_EXTRA_LABEL_TYPE);
 
         // Return String
-        mHandler.post(() -> mOnDataWedgeDataProcessedListener.onCursorNull(
-                labelType, dataString, decodeMode));
+        mHandler.post(() -> mOnDataWedgeDataProcessedListener.onSingleBarcodeProcessed(
+                "","", "", new byte[]{0}, "", 0,
+                0));
+    }
+
+    private byte[] getBinaryDataFromCursor(Cursor cursor) throws Exception {
+        // Init Holder
+        byte[] binaryData = null;
+
+        // Get next URI
+        String nextURI = cursor.getString(cursor.getColumnIndex(IntentKeys.DATA_NEXT_URI));
+
+        // No data chunks - All data is available in one chunk
+        if (nextURI.isEmpty()) {
+            binaryData = cursor.getBlob(cursor.getColumnIndex(IntentKeys.DECODE_DATA));
+        } else {
+            // Init OutputStream
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            // Get size of Data from Cursor
+            final String fullDataSize = cursor.getString(cursor.getColumnIndex(IntentKeys.FULL_DATA_SIZE));
+
+            // Create Buffer for raw data
+            int bufferSize = cursor.getInt(cursor.getColumnIndex(IntentKeys.RAW_DATA_SIZE));
+
+            // Write first chunk of data from cursor
+            baos.write(cursor.getBlob(cursor.getColumnIndex(IntentKeys.DECODE_DATA)));
+
+            // Loop all URIs in cursor
+            while (!nextURI.isEmpty()) {
+                // Create new Cursor
+                Cursor imageDataCursor = mCx.get().getContentResolver().query(Uri.parse(nextURI),
+                        null, null, null);
+
+                // Validate cursor
+                if (imageDataCursor != null) {
+                    imageDataCursor.moveToFirst();
+                    bufferSize += imageDataCursor.getInt(imageDataCursor.getColumnIndex(IntentKeys.RAW_DATA_SIZE));
+                    byte[] bufferData = imageDataCursor.getBlob(imageDataCursor.getColumnIndex(IntentKeys.DECODE_DATA));
+                    baos.write(bufferData);
+                    nextURI = imageDataCursor.getString(imageDataCursor.getColumnIndex(IntentKeys.DATA_NEXT_URI));
+                }
+
+                // Close cursor
+                imageDataCursor.close();
+
+                // TODO: Update Progress ?
+                final int finalBufferSize = bufferSize;
+                mHandler.post(() -> {
+//                    setStatus("Data being processed, please wait..\n" + finalBufferSize + "/" + fullDataSize + " bytes merged");
+//                    enableDisableUIControls(false);
+                });
+            }
+
+            // Convert to byte[] and close OutputStream
+            binaryData = baos.toByteArray();
+            baos.close();
+        }
+
+        // Return byte[]
+        return binaryData;
     }
 
     private Bitmap convertBinaryDataToBitmap(@NonNull byte[] binaryData, int imgWidth,

@@ -11,16 +11,12 @@ import com.zebra.jamesswinton.anchorbarcodesample.enums.ScanMode;
 import java.util.ArrayList;
 
 import static com.zebra.jamesswinton.anchorbarcodesample.enums.ScanMode.Single;
+import static com.zebra.jamesswinton.anchorbarcodesample.utils.Constants.SIGNATURE_CHECK_NOT_REQUESTED;
+import static com.zebra.jamesswinton.anchorbarcodesample.utils.Constants.SIGNATURE_CHECK_NOT_SUPPORTED;
+import static com.zebra.jamesswinton.anchorbarcodesample.utils.Constants.SIGNATURE_NOT_PRESENT;
+import static com.zebra.jamesswinton.anchorbarcodesample.utils.Constants.SIGNATURE_PRESENT;
 
 public class DataWedgeUtils {
-
-    /**
-     * Process Data
-     */
-
-    public static void processData(Bundle data) {
-
-    }
 
     /**
      * Creates profile in DW Application - this profile will be associated with all activities in
@@ -31,8 +27,8 @@ public class DataWedgeUtils {
      * @param update - Whether to update an existing profile
      */
 
-    public static void createProfile(Context cx, ScanMode scanMode, String selectedTemplateName,
-                                     boolean update) {
+    public static void createProfile(Context cx, String scannerSelection, ScanMode scanMode,
+                                     String selectedTemplateName, boolean update) {
         // Set Scanning mode (selected by user in dropdown)
         int ng_ss_mode = (scanMode == Single
                 ? IntentKeys.SINGLEBARCODE_SCANNING_MODE
@@ -55,7 +51,7 @@ public class DataWedgeUtils {
 
         // Barcode Params Bundle -> This is where template is set
         Bundle bParamsBarcode = new Bundle();
-        bParamsBarcode.putString("scanner_selection_by_identifier", "INTERNAL_IMAGER");
+        bParamsBarcode.putString("scanner_selection_by_identifier", scannerSelection);
         bParamsBarcode.putString("scanning_mode", String.valueOf(ng_ss_mode));
         bParamsBarcode.putString("doc_capture_template", selectedTemplateName);
 
@@ -145,6 +141,21 @@ public class DataWedgeUtils {
             i.setAction(IntentKeys.DATAWEDGE_API_ACTION);
             i.putExtra("com.symbol.datawedge.api.UNREGISTER_FOR_NOTIFICATION", b);
             cx.sendBroadcast(i);
+        }
+    }
+
+    public static String convertSignatureStatusToString(int sigStatus) {
+        switch (sigStatus) {
+            case SIGNATURE_PRESENT:
+                return "Signature Present";
+            case SIGNATURE_NOT_PRESENT:
+                return "Signature Not Present";
+            case SIGNATURE_CHECK_NOT_REQUESTED:
+                return "Signature Not Requested";
+            case SIGNATURE_CHECK_NOT_SUPPORTED:
+                return "Signature Check Not Supported";
+            default:
+                return "Signature Status Unknown";
         }
     }
 }

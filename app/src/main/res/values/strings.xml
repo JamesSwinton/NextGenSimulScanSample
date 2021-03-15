@@ -18,4 +18,11 @@
     <item>USPS_form_3849_SignatureStatus</item>
   </string-array>
 
+  <!-- Scanner Selection -->
+  <string name="scanner_prompt">Scanner</string>
+  <string-array name="scanner_identifier">
+    <item>INTERNAL_IMAGER</item>
+    <item>INTERNAL_CAMERA</item>
+  </string-array>
+
 </resources>

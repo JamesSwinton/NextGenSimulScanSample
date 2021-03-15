@@ -25,63 +25,106 @@
       app:cardElevation="8dp">
 
       <LinearLayout
-        android:id="@+id/spinner_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="10">
+        android:orientation="vertical">
 
         <LinearLayout
-          android:layout_width="0dp"
+          android:id="@+id/spinner_layout_1"
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_weight="5"
-          android:weightSum="10"
-          android:orientation="vertical"
-          android:padding="8dp">
+          android:orientation="horizontal"
+          android:weightSum="10">
 
-          <TextView
-            android:id="@+id/scan_mode_title"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="5"
-            android:layout_marginStart="7dp"
-            android:text="@string/scan_mode_prompt"/>
+          <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="10"
+            android:weightSum="10"
+            android:orientation="vertical"
+            android:padding="8dp">
 
-          <Spinner
-            android:id="@+id/scan_mode_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="5"
-            android:entries="@array/scanning_modes"
-            android:prompt="@string/scan_mode_prompt"
-            android:spinnerMode="dialog"/>
+            <TextView
+              android:id="@+id/scanner_selection_title"
+              android:layout_width="match_parent"
+              android:layout_height="0dp"
+              android:layout_weight="5"
+              android:layout_marginStart="7dp"
+              android:text="@string/scanner_prompt"/>
+
+            <Spinner
+              android:id="@+id/scanner_spinner"
+              android:layout_width="match_parent"
+              android:layout_height="0dp"
+              android:layout_weight="5"
+              android:entries="@array/scanner_identifier"
+              android:prompt="@string/scanner_prompt"
+              android:spinnerMode="dialog"/>
+
+          </LinearLayout>
 
         </LinearLayout>
 
         <LinearLayout
-          android:layout_width="0dp"
+          android:id="@+id/spinner_layout_2"
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_weight="5"
-          android:weightSum="10"
-          android:orientation="vertical"
-          android:padding="8dp">
+          android:orientation="horizontal"
+          android:weightSum="10">
 
-          <TextView
-            android:id="@+id/template_title"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+          <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="5"
-            android:layout_marginStart="7dp"
-            android:text="@string/templates_prompt"/>
+            android:weightSum="10"
+            android:orientation="vertical"
+            android:padding="8dp">
 
-          <Spinner
-            android:id="@+id/template_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+            <TextView
+              android:id="@+id/scan_mode_title"
+              android:layout_width="match_parent"
+              android:layout_height="0dp"
+              android:layout_weight="5"
+              android:layout_marginStart="7dp"
+              android:text="@string/scan_mode_prompt"/>
+
+            <Spinner
+              android:id="@+id/scan_mode_spinner"
+              android:layout_width="match_parent"
+              android:layout_height="0dp"
+              android:layout_weight="5"
+              android:entries="@array/scanning_modes"
+              android:prompt="@string/scan_mode_prompt"
+              android:spinnerMode="dialog"/>
+
+          </LinearLayout>
+
+          <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="5"
-            android:entries="@array/templates"
-            android:prompt="@string/templates_prompt"
-            android:spinnerMode="dialog"/>
+            android:weightSum="10"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+              android:id="@+id/template_title"
+              android:layout_width="match_parent"
+              android:layout_height="0dp"
+              android:layout_weight="5"
+              android:layout_marginStart="7dp"
+              android:text="@string/templates_prompt"/>
+
+            <Spinner
+              android:id="@+id/template_spinner"
+              android:layout_width="match_parent"
+              android:layout_height="0dp"
+              android:layout_weight="5"
+              android:entries="@array/templates"
+              android:prompt="@string/templates_prompt"
+              android:spinnerMode="dialog"/>
+
+          </LinearLayout>
 
         </LinearLayout>
 

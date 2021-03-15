@@ -24,6 +24,8 @@ import com.zebra.jamesswinton.anchorbarcodesample.utils.ProcessDataWedgeOutputAs
 
 import java.util.ArrayList;
 
+import static com.zebra.jamesswinton.anchorbarcodesample.utils.DataWedgeUtils.convertSignatureStatusToString;
+
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
         ProcessDataWedgeOutputAsync.OnDataWedgeDataProcessedListener {
 
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private ActivityMainMaterialBinding mDataBinding;
 
     // Config Holders
+    private String mScanner;
     private String mTemplate;
     private ScanMode mScanMode;
 
@@ -44,12 +47,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         initUIComponents();
 
         // Set Defaults
+        mScanner = getResources().getStringArray(R.array.scanner_identifier)[0];
         mTemplate = getResources().getStringArray(R.array.templates)[0];
         mScanMode = getResources().getStringArray(R.array.scanning_modes)[0]
                 .equals("Single") ? ScanMode.Single : ScanMode.SimulScan;
 
         // Create DW Profile
-        DataWedgeUtils.createProfile(this, mScanMode, mTemplate, false);
+        DataWedgeUtils.createProfile(this, mScanner, mScanMode, mTemplate,false);
     }
 
     @Override
@@ -136,6 +140,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // Loop decoded fields & display
         for (Field decodedField : decodedFields) {
             if (decodedField.getLabelType().equals(IntentKeys.LABEL_TYPE_SIGNATURE)) {
+                // Display Signature Status
+                TextView textView = new TextView(MainActivity.this);
+                textView.setText("Signature Status: " +
+                        convertSignatureStatusToString(decodedField.getSignatureStatus())
+                        + "(" + decodedField.getSignatureStatus() + ")");
+                mDataBinding.dataLayout.scanDataLayout.addView(textView);
+
                 // Process Signature Field
                 ImageView imageView = new ImageView(MainActivity.this);
                 imageView.setImageBitmap(decodedField.getBitmap());
@@ -166,19 +177,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void initUIComponents() {
         mDataBinding.settingsLayout.scanModeSpinner.setOnItemSelectedListener(this);
         mDataBinding.settingsLayout.templateSpinner.setOnItemSelectedListener(this);
+
+        // disable Scanner selection - TODO: Remove when feature is released
+        // mDataBinding.settingsLayout.scannerSpinner.setEnabled(false);
     }
 
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         switch (parent.getId()) {
+            case R.id.scanner_spinner: {
+                // Update Template Variable
+                mScanner = parent.getItemAtPosition(position).toString();
+
+                // Update Profile to reflect change
+                DataWedgeUtils.createProfile(this, mScanner, mScanMode, mTemplate, true);
+                break;
+            }
             case R.id.scan_mode_spinner: {
                 // Update Scan Mode Variable
                 mScanMode = parent.getItemAtPosition(position).toString()
                         .equals(ScanMode.Single.name()) ? ScanMode.Single : ScanMode.SimulScan;
 
                 // Update Profile to reflect change
-                DataWedgeUtils.createProfile(this, mScanMode, mTemplate, true);
+                DataWedgeUtils.createProfile(this, mScanner, mScanMode, mTemplate, true);
 
                 // Enable / Disable template selection
                 mDataBinding.settingsLayout.templateSpinner.setEnabled(
@@ -190,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mTemplate = parent.getItemAtPosition(position).toString();
 
                 // Update Profile to reflect change
-                DataWedgeUtils.createProfile(this, mScanMode, mTemplate, true);
+                DataWedgeUtils.createProfile(this, mScanner, mScanMode, mTemplate, true);
                 break;
             }
         }
