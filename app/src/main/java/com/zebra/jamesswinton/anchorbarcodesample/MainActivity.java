@@ -12,12 +12,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zebra.jamesswinton.anchorbarcodesample.data.Field;
 import com.zebra.jamesswinton.anchorbarcodesample.databinding.ActivityMainMaterialBinding;
 import com.zebra.jamesswinton.anchorbarcodesample.enums.ScanMode;
+import com.zebra.jamesswinton.anchorbarcodesample.utils.CustomDialog;
 import com.zebra.jamesswinton.anchorbarcodesample.utils.DataWedgeUtils;
 import com.zebra.jamesswinton.anchorbarcodesample.utils.IntentKeys;
 import com.zebra.jamesswinton.anchorbarcodesample.utils.ProcessDataWedgeOutputAsync;
@@ -27,15 +29,22 @@ import java.util.ArrayList;
 import static com.zebra.jamesswinton.anchorbarcodesample.utils.DataWedgeUtils.convertSignatureStatusToString;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
-        ProcessDataWedgeOutputAsync.OnDataWedgeDataProcessedListener {
+        ProcessDataWedgeOutputAsync.OnDataWedgeDataProcessedListener,
+        CompoundButton.OnCheckedChangeListener {
 
     // UI DataBinding (allows access to views without multiple findViewById calls)
     private ActivityMainMaterialBinding mDataBinding;
 
     // Config Holders
+    private boolean mIlluminate;
     private String mScanner;
     private String mTemplate;
     private ScanMode mScanMode;
+
+    // Spinner Listener holder (When setting the listener on the spinner it triggers the callback,
+    // so we need a flag to indicate first-run)
+    private int mTotalTimesCallbackTriggered = 0;
+    private final int mTotalSpinnerListeners = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,13 +56,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         initUIComponents();
 
         // Set Defaults
+        mIlluminate = false;
         mScanner = getResources().getStringArray(R.array.scanner_identifier)[0];
         mTemplate = getResources().getStringArray(R.array.templates)[0];
         mScanMode = getResources().getStringArray(R.array.scanning_modes)[0]
                 .equals("Single") ? ScanMode.Single : ScanMode.SimulScan;
 
         // Create DW Profile
-        DataWedgeUtils.createProfile(this, mScanner, mScanMode, mTemplate,false);
+        DataWedgeUtils.createProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
     }
 
     @Override
@@ -87,9 +97,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             switch (action) {
-                case IntentKeys.NOTIFICATION_ACTION:
-                    // TODO
-                    break;
                 case IntentKeys.INTENT_OUTPUT_ACTION:
                     Bundle data = intent.getExtras();
                     if (data != null) {
@@ -98,7 +105,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                     break;
                 case IntentKeys.RESULT_ACTION:
-                    // TODO
+                    // Parse result from DW
+                    String result = DataWedgeUtils.handleResultAction(intent);
+
+                    // If result exists, there was an error. Display error in dialog.
+                    if (result != null) {
+                        CustomDialog.showCustomDialog(MainActivity.this,
+                                CustomDialog.DialogType.ERROR, "Error!", result);
+                    }
                     break;
             }
         }
@@ -175,23 +189,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      */
 
     private void initUIComponents() {
+        mDataBinding.settingsLayout.flashToggle.setOnCheckedChangeListener(this);
         mDataBinding.settingsLayout.scanModeSpinner.setOnItemSelectedListener(this);
         mDataBinding.settingsLayout.templateSpinner.setOnItemSelectedListener(this);
-
-        // disable Scanner selection - TODO: Remove when feature is released
-        // mDataBinding.settingsLayout.scannerSpinner.setEnabled(false);
+        mDataBinding.settingsLayout.scannerSpinner.setOnItemSelectedListener(this);
     }
 
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // This callback is triggered as soon as the interface is set on the View, so lets ignore
+        // the first run of each spinner
+        if (mTotalSpinnerListeners > mTotalTimesCallbackTriggered++) {
+            return;
+        }
+
+        // Handle Event
         switch (parent.getId()) {
             case R.id.scanner_spinner: {
                 // Update Template Variable
                 mScanner = parent.getItemAtPosition(position).toString();
 
                 // Update Profile to reflect change
-                DataWedgeUtils.createProfile(this, mScanner, mScanMode, mTemplate, true);
+                DataWedgeUtils.createProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
                 break;
             }
             case R.id.scan_mode_spinner: {
@@ -200,11 +220,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         .equals(ScanMode.Single.name()) ? ScanMode.Single : ScanMode.SimulScan;
 
                 // Update Profile to reflect change
-                DataWedgeUtils.createProfile(this, mScanner, mScanMode, mTemplate, true);
+                DataWedgeUtils.createProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
 
                 // Enable / Disable template selection
-                mDataBinding.settingsLayout.templateSpinner.setEnabled(
-                        mScanMode == ScanMode.SimulScan);
+                mDataBinding.settingsLayout.templateLayout.setVisibility(
+                        mScanMode == ScanMode.SimulScan ? View.VISIBLE : View.GONE);
                 break;
             }
             case R.id.template_spinner: {
@@ -212,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mTemplate = parent.getItemAtPosition(position).toString();
 
                 // Update Profile to reflect change
-                DataWedgeUtils.createProfile(this, mScanner, mScanMode, mTemplate, true);
+                DataWedgeUtils.createProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
                 break;
             }
         }
@@ -221,5 +241,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         // Unsupported
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        switch (buttonView.getId()) {
+            case R.id.flash_toggle: {
+                // Update Template Variable
+                mIlluminate = isChecked;
+
+                // Update Profile to reflect change
+                DataWedgeUtils.createProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
+                break;
+            }
+        }
     }
 }

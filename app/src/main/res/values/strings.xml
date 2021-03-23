@@ -1,6 +1,9 @@
 <resources>
   <string name="app_name">AnchorBarcodeSample</string>
 
+  <!-- Flash -->
+  <string name="illuminate_title">Illuminate</string>
+
   <!-- Scanning Modes -->
   <string name="scan_mode_prompt">Scan Mode</string>
   <string-array name="scanning_modes">
@@ -20,6 +23,7 @@
 
   <!-- Scanner Selection -->
   <string name="scanner_prompt">Scanner</string>
+  <string name="camera_scanner">INTERNAL_CAMERA</string>
   <string-array name="scanner_identifier">
     <item>INTERNAL_IMAGER</item>
     <item>INTERNAL_CAMERA</item>

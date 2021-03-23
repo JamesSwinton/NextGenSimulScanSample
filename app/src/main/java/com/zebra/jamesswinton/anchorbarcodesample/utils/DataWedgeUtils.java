@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.zebra.jamesswinton.anchorbarcodesample.enums.ScanMode;
 
@@ -22,13 +23,13 @@ public class DataWedgeUtils {
      * Creates profile in DW Application - this profile will be associated with all activities in
      * this application
      * @param cx - Context
+     * @param illuminate - Enable flash for camera scanner
      * @param scanMode - Single or SimulScan
      * @param selectedTemplateName - Template to use for document capture
-     * @param update - Whether to update an existing profile
      */
 
-    public static void createProfile(Context cx, String scannerSelection, ScanMode scanMode,
-                                     String selectedTemplateName, boolean update) {
+    public static void createProfile(Context cx, boolean illuminate, String scannerSelection,
+                                     ScanMode scanMode, String selectedTemplateName) {
         // Set Scanning mode (selected by user in dropdown)
         int ng_ss_mode = (scanMode == Single
                 ? IntentKeys.SINGLEBARCODE_SCANNING_MODE
@@ -43,7 +44,7 @@ public class DataWedgeUtils {
         Bundle bMain = new Bundle();
         bMain.putString("PROFILE_NAME", IntentKeys.PROFILE_NAME);
         bMain.putString("PROFILE_ENABLED", "true");
-        bMain.putString("CONFIG_MODE", update ? "UPDATE" : "CREATE_IF_NOT_EXIST");
+        bMain.putString("CONFIG_MODE", "OVERWRITE");
         bMain.putParcelableArray("APP_LIST", new Bundle[]{ appAssociation });
 
         // Plugin Bundle (To hold config for plugins, e.g. barcode, intent output etc...)
@@ -54,6 +55,7 @@ public class DataWedgeUtils {
         bParamsBarcode.putString("scanner_selection_by_identifier", scannerSelection);
         bParamsBarcode.putString("scanning_mode", String.valueOf(ng_ss_mode));
         bParamsBarcode.putString("doc_capture_template", selectedTemplateName);
+        bParamsBarcode.putString("illumination_mode", illuminate ? "torch" : "off");
 
         // Add Barcode Params Bundle to Config bundle
         Bundle bConfigBarcode = new Bundle();
@@ -61,7 +63,7 @@ public class DataWedgeUtils {
         bConfigBarcode.putString("RESET_CONFIG", "true");
         bConfigBarcode.putBundle("PARAM_LIST", bParamsBarcode);
 
-        // Barcode Params Bundle -> This is where the intent output configuration is set
+        // Intent Params Bundle -> This is where the intent output configuration is set
         Bundle bParamsIntent = new Bundle();
         bParamsIntent.putString("intent_output_enabled", "true");
         bParamsIntent.putString("intent_action", IntentKeys.INTENT_OUTPUT_ACTION);
@@ -144,6 +146,73 @@ public class DataWedgeUtils {
         }
     }
 
+    /**
+     * Parses intent returned from Datawedge to check for errors.
+     * If error is found, Error String will be built & returned to calling class
+     * @param intent - intent from DW
+     * @return - either null for success or error string for failure
+     */
+
+    public static String handleResultAction(Intent intent) {
+        // Init Holders
+        boolean actionSuccessful = true;
+        StringBuilder results = new StringBuilder();
+
+        // Get Extras from Intent
+        Bundle intentExtras = intent.getExtras();
+
+        // Query extras for Command Identifier
+        if (intentExtras.containsKey(IntentKeys.COMMAND_IDENTIFIER_EXTRA)) {
+            // Get Identifier from Extras
+            String commandIdentifier = intentExtras.getString(IntentKeys.COMMAND_IDENTIFIER_EXTRA);
+
+            // Verify command identifier is ours
+            if (commandIdentifier.equalsIgnoreCase(IntentKeys.COMMAND_IDENTIFIER_CREATE_PROFILE)) {
+                // Get Results
+                ArrayList<Bundle> resultsList = (ArrayList<Bundle>) intentExtras.get("RESULT_LIST");
+
+                // Verify existence of results
+                if (!resultsList.isEmpty()) {
+
+                    // Loop results & Build Results String
+                    for (Bundle result : resultsList) {
+                        if (result.getString("RESULT")
+                                .equalsIgnoreCase(IntentKeys.INTENT_RESULT_CODE_FAILURE)) {
+                            // update Holder
+                            actionSuccessful = false;
+
+                            // Get Module
+                            results.append("Module: ");
+                            results.append(result.getString("MODULE"));
+                            results.append("\n");
+
+                            // get Result
+                            results.append("Result: ");
+                            results.append(result.getString("RESULT"));
+                            results.append("\n");
+
+                            // Get Result code
+                            results.append("Result code: ");
+                            results.append(result.getString("RESULT_CODE"));
+                            results.append("\n");
+
+                            // et sub-result code if exists
+                            if (result.containsKey("SUB_RESULT_CODE"))
+                                results.append("\t");
+                                results.append("Sub Result code: ");
+                                results.append(result.getString("SUB_RESULT_CODE"));
+                                results.append("\n");;
+                        }
+                    }
+
+                }
+            }
+        }
+
+        // If result contains a failure, notify our calling class to display the error
+        return actionSuccessful ? null : results.toString();
+    }
+
     public static String convertSignatureStatusToString(int sigStatus) {
         switch (sigStatus) {
             case SIGNATURE_PRESENT:
@@ -158,4 +227,5 @@ public class DataWedgeUtils {
                 return "Signature Status Unknown";
         }
     }
+
 }
