@@ -19,9 +19,9 @@ import android.widget.TextView;
 import com.zebra.jamesswinton.anchorbarcodesample.data.Field;
 import com.zebra.jamesswinton.anchorbarcodesample.databinding.ActivityMainMaterialBinding;
 import com.zebra.jamesswinton.anchorbarcodesample.enums.ScanMode;
+import com.zebra.jamesswinton.anchorbarcodesample.utils.Constants;
 import com.zebra.jamesswinton.anchorbarcodesample.utils.CustomDialog;
 import com.zebra.jamesswinton.anchorbarcodesample.utils.DataWedgeUtils;
-import com.zebra.jamesswinton.anchorbarcodesample.utils.IntentKeys;
 import com.zebra.jamesswinton.anchorbarcodesample.utils.ProcessDataWedgeOutputAsync;
 
 import java.util.ArrayList;
@@ -70,12 +70,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onResume() {
         super.onResume();
         // Register Broadcast Receivers
-        DataWedgeUtils.registerDataWedgeBroadcastReceiver(this, IntentKeys.DW_INTENT_ACTIONS,
+        DataWedgeUtils.registerDataWedgeBroadcastReceiver(this, Constants.DataWedgeConstants.DW_INTENT_ACTIONS,
                 DataWedgeBroadcastReceiver);
 
         // Register for Notifications from DataWedge
         DataWedgeUtils.registerForNotificationsFromDataWedge(this,
-                IntentKeys.DW_NOTIFICATION_ACTIONS);
+                Constants.DataWedgeConstants.DW_NOTIFICATION_ACTIONS);
     }
 
     @Override
@@ -85,26 +85,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         unregisterReceiver(DataWedgeBroadcastReceiver);
 
         // Unregister from Notifications
-        DataWedgeUtils.unregisterForNotifications(this, IntentKeys.DW_NOTIFICATION_ACTIONS);
+        DataWedgeUtils.unregisterForNotifications(this, Constants.DataWedgeConstants.DW_NOTIFICATION_ACTIONS);
     }
 
     /**
      * DW Broadcast Receiver
      */
 
-    private BroadcastReceiver DataWedgeBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver DataWedgeBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             switch (action) {
-                case IntentKeys.INTENT_OUTPUT_ACTION:
+                case Constants.DataWedgeConstants.DATA_WEDGE_INTENT_OUTPUT_ACTION:
                     Bundle data = intent.getExtras();
                     if (data != null) {
                         new ProcessDataWedgeOutputAsync(MainActivity.this, data,
                                 MainActivity.this).execute();
                     }
                     break;
-                case IntentKeys.RESULT_ACTION:
+                case Constants.DataWedgeConstants.DATA_WEDGE_RESULT_ACTION:
                     // Parse result from DW
                     String result = DataWedgeUtils.handleResultAction(intent);
 
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // Loop decoded fields & display
         for (Field decodedField : decodedFields) {
-            if (decodedField.getLabelType().equals(IntentKeys.LABEL_TYPE_SIGNATURE)) {
+            if (decodedField.getLabelType().equals(Constants.DataWedgeConstants.DATA_WEDGE_EXTRA_LABEL_TYPE_SIGNATURE)) {
                 // Display Signature Status
                 TextView textView = new TextView(MainActivity.this);
                 textView.setText("Signature Status: " +

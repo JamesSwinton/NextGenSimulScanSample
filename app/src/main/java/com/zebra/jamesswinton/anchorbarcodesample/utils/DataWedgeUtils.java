@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.widget.TextView;
 
 import com.zebra.jamesswinton.anchorbarcodesample.enums.ScanMode;
 
@@ -32,8 +31,8 @@ public class DataWedgeUtils {
                                      ScanMode scanMode, String selectedTemplateName) {
         // Set Scanning mode (selected by user in dropdown)
         int ng_ss_mode = (scanMode == Single
-                ? IntentKeys.SINGLEBARCODE_SCANNING_MODE
-                : IntentKeys.NG_SS_SCANNING_MODE);
+                ? Constants.DataWedgeConstants.SINGLE_BARCODE_SCANNING_MODE
+                : Constants.DataWedgeConstants.NGSS_SCANNING_MODE);
 
         // App Association Bundle
         Bundle appAssociation = new Bundle();
@@ -42,7 +41,7 @@ public class DataWedgeUtils {
 
         // Main DW Bundle (Profile name, state & update type)
         Bundle bMain = new Bundle();
-        bMain.putString("PROFILE_NAME", IntentKeys.PROFILE_NAME);
+        bMain.putString("PROFILE_NAME", Constants.DataWedgeConstants.DATA_WEDGE_PROFILE_NAME);
         bMain.putString("PROFILE_ENABLED", "true");
         bMain.putString("CONFIG_MODE", "OVERWRITE");
         bMain.putParcelableArray("APP_LIST", new Bundle[]{ appAssociation });
@@ -66,7 +65,7 @@ public class DataWedgeUtils {
         // Intent Params Bundle -> This is where the intent output configuration is set
         Bundle bParamsIntent = new Bundle();
         bParamsIntent.putString("intent_output_enabled", "true");
-        bParamsIntent.putString("intent_action", IntentKeys.INTENT_OUTPUT_ACTION);
+        bParamsIntent.putString("intent_action", Constants.DataWedgeConstants.DATA_WEDGE_INTENT_OUTPUT_ACTION);
         bParamsIntent.putString("intent_category", "android.intent.category.DEFAULT");
         bParamsIntent.putInt("intent_delivery", 2);
         bParamsIntent.putString("intent_use_content_provider", "true");
@@ -86,11 +85,11 @@ public class DataWedgeUtils {
 
         // Create Intent to send configuration DW
         Intent iSetConfig = new Intent();
-        iSetConfig.setAction(IntentKeys.DATAWEDGE_API_ACTION);
+        iSetConfig.setAction(Constants.DataWedgeConstants.DATA_WEDGE_API_ACTION);
         iSetConfig.putExtra("com.symbol.datawedge.api.SET_CONFIG", bMain);
         iSetConfig.putExtra("SEND_RESULT", "COMPLETE_RESULT");
-        iSetConfig.putExtra(IntentKeys.COMMAND_IDENTIFIER_EXTRA,
-                IntentKeys.COMMAND_IDENTIFIER_CREATE_PROFILE);
+        iSetConfig.putExtra(Constants.DataWedgeConstants.DATA_WEDGE_COMMAND_IDENTIFIER_KEY,
+                Constants.DataWedgeConstants.DATA_WEDGE_COMMAND_IDENTIFIER_CREATE_PROFILE);
 
         // Broadcast Intent
         cx.sendBroadcast(iSetConfig);
@@ -123,7 +122,7 @@ public class DataWedgeUtils {
             b.putString("com.symbol.datawedge.api.APPLICATION_NAME", cx.getPackageName());
             b.putString("com.symbol.datawedge.api.NOTIFICATION_TYPE", notificationType);
             Intent i = new Intent();
-            i.setAction(IntentKeys.DATAWEDGE_API_ACTION);
+            i.setAction(Constants.DataWedgeConstants.DATA_WEDGE_API_ACTION);
             i.putExtra("com.symbol.datawedge.api.REGISTER_FOR_NOTIFICATION", b);
             cx.sendBroadcast(i);
         }
@@ -140,7 +139,7 @@ public class DataWedgeUtils {
             b.putString("com.symbol.datawedge.api.APPLICATION_NAME", cx.getPackageName());
             b.putString("com.symbol.datawedge.api.NOTIFICATION_TYPE", notificationType);
             Intent i = new Intent();
-            i.setAction(IntentKeys.DATAWEDGE_API_ACTION);
+            i.setAction(Constants.DataWedgeConstants.DATA_WEDGE_API_ACTION);
             i.putExtra("com.symbol.datawedge.api.UNREGISTER_FOR_NOTIFICATION", b);
             cx.sendBroadcast(i);
         }
@@ -162,12 +161,12 @@ public class DataWedgeUtils {
         Bundle intentExtras = intent.getExtras();
 
         // Query extras for Command Identifier
-        if (intentExtras.containsKey(IntentKeys.COMMAND_IDENTIFIER_EXTRA)) {
+        if (intentExtras.containsKey(Constants.DataWedgeConstants.DATA_WEDGE_COMMAND_IDENTIFIER_KEY)) {
             // Get Identifier from Extras
-            String commandIdentifier = intentExtras.getString(IntentKeys.COMMAND_IDENTIFIER_EXTRA);
+            String commandIdentifier = intentExtras.getString(Constants.DataWedgeConstants.DATA_WEDGE_COMMAND_IDENTIFIER_KEY);
 
             // Verify command identifier is ours
-            if (commandIdentifier.equalsIgnoreCase(IntentKeys.COMMAND_IDENTIFIER_CREATE_PROFILE)) {
+            if (commandIdentifier.equalsIgnoreCase(Constants.DataWedgeConstants.DATA_WEDGE_COMMAND_IDENTIFIER_CREATE_PROFILE)) {
                 // Get Results
                 ArrayList<Bundle> resultsList = (ArrayList<Bundle>) intentExtras.get("RESULT_LIST");
 
@@ -177,7 +176,7 @@ public class DataWedgeUtils {
                     // Loop results & Build Results String
                     for (Bundle result : resultsList) {
                         if (result.getString("RESULT")
-                                .equalsIgnoreCase(IntentKeys.INTENT_RESULT_CODE_FAILURE)) {
+                                .equalsIgnoreCase(Constants.DataWedgeConstants.INTENT_RESULT_CODE_FAILURE)) {
                             // update Holder
                             actionSuccessful = false;
 
