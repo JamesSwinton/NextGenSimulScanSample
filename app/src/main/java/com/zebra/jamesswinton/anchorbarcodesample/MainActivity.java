@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // Init UI (Click listeners, Spinner Change Listeners etc...)
         initUIComponents();
 
-        // Set Defaults
+        // Set Defaults (First item in String Array Resource is considered default)
         mIlluminate = false;
         mScanner = getResources().getStringArray(R.array.scanner_identifier)[0];
         mTemplate = getResources().getStringArray(R.array.templates)[0];
