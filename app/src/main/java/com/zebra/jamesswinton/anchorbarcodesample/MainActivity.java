@@ -179,14 +179,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.i(this.getClass().getName(), "Err: " + e.getMessage());
     }
 
-    private void clearDisplay() {
-       mDataBinding.dataLayout.docLayout.removeAllViews();
-       mDataBinding.dataLayout.scanDataLayout.removeAllViews();
-    }
-
     /**
      * UI
      */
+
+    private void clearDisplay() {
+        mDataBinding.dataLayout.docLayout.removeAllViews();
+        mDataBinding.dataLayout.scanDataLayout.removeAllViews();
+    }
 
     private void initUIComponents() {
         mDataBinding.settingsLayout.flashToggle.setOnCheckedChangeListener(this);
