@@ -18,8 +18,22 @@ import static com.zebra.jamesswinton.anchorbarcodesample.utils.Constants.SIGNATU
 
 public class DataWedgeUtils {
 
+    public static void createProfile(Context cx) {
+        // Create Intent to send configuration DW
+        Intent iSetConfig = new Intent();
+        iSetConfig.setAction(Constants.DataWedgeConstants.DATA_WEDGE_API_ACTION);
+        iSetConfig.putExtra("com.symbol.datawedge.api.CREATE_PROFILE",
+                Constants.DataWedgeConstants.DATA_WEDGE_PROFILE_NAME);
+        iSetConfig.putExtra("SEND_RESULT", "COMPLETE_RESULT");
+        iSetConfig.putExtra(Constants.DataWedgeConstants.DATA_WEDGE_COMMAND_IDENTIFIER_KEY,
+                Constants.DataWedgeConstants.DATA_WEDGE_COMMAND_IDENTIFIER_CREATE_PROFILE);
+
+        // Broadcast Intent
+        cx.sendBroadcast(iSetConfig);
+    }
+
     /**
-     * Creates profile in DW Application - this profile will be associated with all activities in
+     * Updates profile in DW Application - this profile will be associated with all activities in
      * this application
      * @param cx - Context
      * @param illuminate - Enable flash for camera scanner
@@ -27,7 +41,7 @@ public class DataWedgeUtils {
      * @param selectedTemplateName - Template to use for document capture
      */
 
-    public static void createProfile(Context cx, boolean illuminate, String scannerSelection,
+    public static void updateProfile(Context cx, boolean illuminate, String scannerSelection,
                                      ScanMode scanMode, String selectedTemplateName) {
         // Set Scanning mode (selected by user in dropdown)
         int ng_ss_mode = (scanMode == Single

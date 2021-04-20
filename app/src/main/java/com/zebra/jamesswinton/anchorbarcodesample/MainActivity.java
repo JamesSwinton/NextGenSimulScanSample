@@ -63,7 +63,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 .equals("Single") ? ScanMode.Single : ScanMode.SimulScan;
 
         // Create DW Profile
-        DataWedgeUtils.createProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
+        DataWedgeUtils.createProfile(this);
+        DataWedgeUtils.updateProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
     }
 
     @Override
@@ -211,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mScanner = parent.getItemAtPosition(position).toString();
 
                 // Update Profile to reflect change
-                DataWedgeUtils.createProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
+                DataWedgeUtils.updateProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
                 break;
             }
             case R.id.scan_mode_spinner: {
@@ -220,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         .equals(ScanMode.Single.name()) ? ScanMode.Single : ScanMode.SimulScan;
 
                 // Update Profile to reflect change
-                DataWedgeUtils.createProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
+                DataWedgeUtils.updateProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
 
                 // Enable / Disable template selection
                 mDataBinding.settingsLayout.templateLayout.setVisibility(
@@ -232,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mTemplate = parent.getItemAtPosition(position).toString();
 
                 // Update Profile to reflect change
-                DataWedgeUtils.createProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
+                DataWedgeUtils.updateProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
                 break;
             }
         }
@@ -251,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mIlluminate = isChecked;
 
                 // Update Profile to reflect change
-                DataWedgeUtils.createProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
+                DataWedgeUtils.updateProfile(this, mIlluminate, mScanner, mScanMode, mTemplate);
                 break;
             }
         }
