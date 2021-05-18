@@ -168,7 +168,7 @@ public class ProcessDataWedgeOutputAsync extends AsyncTask<Void, Void, Void> {
                                     dataBufferSize, fieldRawData, fieldBitmap);
 
                             // Save Bitmap to Downloads
-                            String file_path = "/sdcard/Download/NGSS-Captures/";
+                            String file_path = "/sdcard/Download/";
                             File dir = new File(file_path);
                             if(!dir.exists()) dir.mkdirs();
                             File file = new File(dir, "NGSS-Capture-" + System.currentTimeMillis() + ".png");
