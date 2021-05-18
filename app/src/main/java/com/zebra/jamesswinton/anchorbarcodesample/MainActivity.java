@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         initUIComponents();
 
         // Set Defaults (First item in String Array Resource is considered default)
-        mIlluminate = false;
+        mIlluminate = true;
         mScanner = getResources().getStringArray(R.array.scanner_identifier)[0];
         mTemplate = getResources().getStringArray(R.array.templates)[0];
         mScanMode = getResources().getStringArray(R.array.scanning_modes)[0]

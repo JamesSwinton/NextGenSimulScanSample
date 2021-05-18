@@ -71,6 +71,7 @@
             android:layout_marginStart="7dp"
             android:singleLine="true"
             android:maxLines="1"
+            android:checked="true"
             android:text="@string/illuminate_title"/>
 
         </LinearLayout>
@@ -115,7 +116,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="5"
             android:weightSum="10"
-            android:visibility="gone"
+            android:visibility="visible"
             android:orientation="vertical"
             android:padding="8dp">
 

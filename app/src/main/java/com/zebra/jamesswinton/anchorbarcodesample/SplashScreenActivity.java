@@ -72,7 +72,7 @@ public class SplashScreenActivity extends AppCompatActivity implements EMDKManag
             startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
         } else {
             // Init EMDK
-            EMDKResults emdkManagerResults = EMDKManager.getEMDKManager(this, this);
+            EMDKResults emdkManagerResults = EMDKManager.getEMDKManager(SplashScreenActivity.this, SplashScreenActivity.this);
 
             // Verify EMDK Manager
             if (emdkManagerResults == null || emdkManagerResults.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {

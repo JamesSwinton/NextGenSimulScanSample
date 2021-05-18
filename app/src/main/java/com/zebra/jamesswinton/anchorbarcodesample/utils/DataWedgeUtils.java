@@ -185,7 +185,7 @@ public class DataWedgeUtils {
                 ArrayList<Bundle> resultsList = (ArrayList<Bundle>) intentExtras.get("RESULT_LIST");
 
                 // Verify existence of results
-                if (!resultsList.isEmpty()) {
+                if (resultsList != null && !resultsList.isEmpty()) {
 
                     // Loop results & Build Results String
                     for (Bundle result : resultsList) {
